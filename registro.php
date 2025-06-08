@@ -1,38 +1,53 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Registro de Usuario</title>
-</head>
-<body>
-    <h2>Registro</h2>
-    <form method="POST" action="registro.php">
-        <input type="text" name="nombre" placeholder="Nombre" required><br><br>
-        <input type="email" name="email" placeholder="Correo electrónico" required><br><br>
-        <input type="password" name="contraseña" placeholder="Contraseña" required><br><br>
-        <input type="submit" value="Registrarse">
-    </form>
+<?php
+// Conexión a la base de datos RDS
+$host = 'db-cotizador-autos1.cfzqjnadmfh0.us-east-1.rds.amazonaws.com';
+$db   = 'cotizador_autos';
+$user = 'admin';
+$pass = '31354134162'; 
+$charset = 'utf8mb4';
 
-    <?php
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        include("db.php");
+$dsn = "mysql:host=$host;dbname=$db;charset=$charset";
+$options = [
+    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+];
 
-        $nombre = $_POST["nombre"];
-        $email = $_POST["email"];
-        $contraseña = password_hash($_POST["contraseña"], PASSWORD_DEFAULT); // Encriptar
+try {
+    $pdo = new PDO($dsn, $user, $pass, $options);
+} catch (\PDOException $e) {
+    die("Error de conexión a la base de datos: " . $e->getMessage());
+}
 
-        $sql = "INSERT INTO usuarios (nombre, email, contraseña) VALUES (?, ?, ?)";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sss", $nombre, $email, $contraseña);
+// Procesar formulario
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $nombre = $_POST["nombre"] ?? '';
+    $email = $_POST["email"] ?? '';
+    $password = $_POST["password"] ?? '';
 
-        if ($stmt->execute()) {
-            echo "<p>Registro exitoso ✅</p>";
-        } else {
-            echo "<p>Error: " . $stmt->error . "</p>";
-        }
-
-        $stmt->close();
-        $conn->close();
+    // Validación básica
+    if (!$nombre || !$email || !$password) {
+        echo "Todos los campos son obligatorios.";
+        exit;
     }
-    ?>
-</body>
-</html>
+
+    // Encriptar la contraseña
+    $hash = password_hash($password, PASSWORD_DEFAULT);
+
+    // Insertar en base de datos
+    $stmt = $pdo->prepare("INSERT INTO usuarios (nombre, email, password) VALUES (?, ?, ?)");
+    try {
+        $stmt->execute([$nombre, $email, $hash]);
+        echo "Usuario registrado con éxito.";
+    } catch (PDOException $e) {
+        echo "Error al registrar: " . $e->getMessage();
+    }
+}
+?>
+
+<!-- Formulario HTML -->
+<form method="POST" action="">
+    <input type="text" name="nombre" placeholder="Nombre completo" required><br>
+    <input type="email" name="email" placeholder="Correo electrónico" required><br>
+    <input type="password" name="password" placeholder="Contraseña" required><br>
+    <button type="submit">Registrarse</button>
+</form>
