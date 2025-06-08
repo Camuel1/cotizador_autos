@@ -1,8 +1,9 @@
+
 <?php
 session_start();
 
+// Verificar si el usuario está logueado
 if (!isset($_SESSION['usuario_id'])) {
-    // No está logueado, lo enviamos al login
     header("Location: login.php");
     exit();
 }
@@ -11,12 +12,11 @@ if (!isset($_SESSION['usuario_id'])) {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Página de Cotización</title>
+    <title>Cotizador de Autos</title>
 </head>
 <body>
-    <h2>Bienvenido, <?php echo htmlspecialchars($_SESSION['usuario_nombre']); ?></h2>
-    <p>Aquí podrás cotizar autos según tus gustos.</p>
-
+    <h1>Bienvenido, <?php echo htmlspecialchars($_SESSION['usuario_nombre']); ?>!</h1>
+    <p>Aquí puedes poner el contenido del cotizador de autos.</p>
     <a href="logout.php">Cerrar sesión</a>
 </body>
 </html>

@@ -1,10 +1,10 @@
 <?php
 session_start();  // Inicia la sesión
 
-include("db.php");
+include("db.php"); // Asegúrate que db.php usa mysqli y $conn
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $email = $_POST["email"];
+    $email = trim($_POST["email"]);
     $contraseña = $_POST["contraseña"];
 
     $sql = "SELECT * FROM usuarios WHERE email = ?";
@@ -17,7 +17,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($result->num_rows === 1) {
         $user = $result->fetch_assoc();
 
-        if (password_verify($contraseña, $user['contraseña'])) {
+        // Cambia 'password' si tu campo en BD tiene otro nombre
+        if (password_verify($contraseña, $user['password'])) {
             // Guardamos datos del usuario en la sesión
             $_SESSION['usuario_id'] = $user['id'];
             $_SESSION['usuario_nombre'] = $user['nombre'];
@@ -37,18 +38,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
+    <meta charset="UTF-8" />
     <title>Inicio de Sesión</title>
 </head>
 <body>
     <h2>Login</h2>
 
-    <?php
-    if (!empty($error)) {
-        echo "<p style='color:red;'>$error</p>";
-    }
-    ?>
+    <?php if (!empty($error)): ?>
+        <p style="color:red;"><?php echo htmlspecialchars($error); ?></p>
+    <?php endif; ?>
 
     <form method="POST" action="">
         <input type="email" name="email" placeholder="Correo electrónico" required><br><br>
