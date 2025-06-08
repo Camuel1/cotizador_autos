@@ -1,7 +1,7 @@
 <?php
 // Conexión a la base de datos RDS
 $host = 'db-cotizador-autos1.cfzqjnadmfh0.us-east-1.rds.amazonaws.com';
-$db   = 'cotizador_autos';
+$db   = 'cotizador_db';
 $user = 'admin';
 $pass = '31354134162'; 
 $charset = 'utf8mb4';
