@@ -5,6 +5,11 @@ if (!isset($_SESSION['usuario_id'])) {
     exit();
 }
 
+require 'vendor/autoload.php'; // Dompdf
+
+use Dompdf\Dompdf;
+use Dompdf\Options;
+
 include("db.php");
 
 $error = "";
@@ -94,7 +99,34 @@ try {
         $stmt_insert->bind_param("iiidssdd", $_SESSION['usuario_id'], $auto_id, $precio_base, $cuotas, $medio_pago, $interes_porcentaje, $total_a_pagar, $pie_pago);
 
         if ($stmt_insert->execute()) {
-            $mensaje = "Cotización guardada con éxito.";
+            // ==== GENERAR Y DESCARGAR PDF ====
+
+            $html = "
+                <h2>Cotización de Auto</h2>
+                <p><strong>Auto:</strong> {$auto['marca']} {$auto['modelo']} ({$auto['anio']})</p>
+                <p><strong>Precio base:</strong> $" . number_format($precio_base, 0, ',', '.') . "</p>
+                <p><strong>Medio de pago:</strong> {$medio_pago}</p>
+                <p><strong>Cuotas:</strong> {$cuotas}</p>
+                <p><strong>Interés:</strong> {$interes_porcentaje}%</p>
+                <p><strong>Total a pagar:</strong> $" . number_format($total_a_pagar, 0, ',', '.') . "</p>
+                <p><strong>Pie pago:</strong> $" . number_format($pie_pago, 0, ',', '.') . "</p>
+            ";
+
+            $options = new Options();
+            $options->set('isRemoteEnabled', true);
+            $dompdf = new Dompdf($options);
+            $dompdf->loadHtml($html);
+            $dompdf->setPaper('A4', 'portrait');
+            $dompdf->render();
+
+            $pdf_filename = 'cotizacion_' . time() . '.pdf';
+
+            // Headers para forzar descarga del PDF
+            header('Content-Type: application/pdf');
+            header('Content-Disposition: attachment; filename="' . $pdf_filename . '"');
+
+            echo $dompdf->output();
+            exit;
         } else {
             throw new Exception("Error al guardar la cotización.");
         }
@@ -104,7 +136,6 @@ try {
 } catch (Exception $e) {
     $error = $e->getMessage();
 }
-
 ?>
 
 <!DOCTYPE html>

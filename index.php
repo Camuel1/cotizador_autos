@@ -17,7 +17,7 @@ session_start();
     <?php else: ?>
         <p>Hola, <?php echo htmlspecialchars($_SESSION['usuario_nombre']); ?></p>
         <button onclick="location.href='recomendar.php'">Recomendar</button>
-        <button onclick="location.href='cotizador_autos/cotizar.php'">Cotizar</button>
+        <button onclick="location.href='autos.php'">Autos</button>
         <button onclick="location.href='logout.php'">Cerrar sesión</button>
     <?php endif; ?>
 
