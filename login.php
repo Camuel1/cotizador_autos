@@ -1,59 +1,71 @@
 <?php
-session_start();  // Inicia la sesión
+session_start();
 
-include("db.php"); // Asegúrate que db.php usa mysqli y $conn
+// Conexión a la base de datos con PDO (igual que en registro.php)
+$host = 'db-cotizador-autos1.cfzqjnadmfh0.us-east-1.rds.amazonaws.com';
+$db   = 'cotizador_db';
+$user = 'admin';
+$pass = '31354134162'; 
+$charset = 'utf8mb4';
 
+$dsn = "mysql:host=$host;dbname=$db;charset=$charset";
+$options = [
+    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+];
+
+try {
+    $pdo = new PDO($dsn, $user, $pass, $options);
+} catch (\PDOException $e) {
+    die("Error de conexión a la base de datos: " . $e->getMessage());
+}
+
+// Procesar formulario
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $email = trim($_POST["email"]);
-    $contraseña = $_POST["contraseña"];
+    $email = $_POST["email"] ?? '';
+    $password = $_POST["password"] ?? '';
 
-    $sql = "SELECT * FROM usuarios WHERE email = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
+    if (!$email || !$password) {
+        $error = "Por favor ingresa email y contraseña.";
+    } else {
+        // Buscar usuario por email
+        $stmt = $pdo->prepare("SELECT id, nombre, password FROM usuarios WHERE email = ?");
+        $stmt->execute([$email]);
+        $usuario = $stmt->fetch();
 
-    $result = $stmt->get_result();
+        if ($usuario && password_verify($password, $usuario['password'])) {
+            // Login correcto
+            $_SESSION['usuario_id'] = $usuario['id'];
+            $_SESSION['usuario_nombre'] = $usuario['nombre'];
 
-    if ($result->num_rows === 1) {
-        $user = $result->fetch_assoc();
-
-        // Cambia 'password' si tu campo en BD tiene otro nombre
-        if (password_verify($contraseña, $user['password'])) {
-            // Guardamos datos del usuario en la sesión
-            $_SESSION['usuario_id'] = $user['id'];
-            $_SESSION['usuario_nombre'] = $user['nombre'];
-            // Redirigimos a la página de recomendaciones
-            header("Location: recomendar.php");
+            // Redirigir al menú principal o donde quieras
+            header("Location: index.php");
             exit();
         } else {
-            $error = "Contraseña incorrecta ❌";
+            $error = "Email o contraseña incorrectos.";
         }
-    } else {
-        $error = "Usuario no encontrado ❌";
     }
-
-    $stmt->close();
-    $conn->close();
 }
 ?>
 
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
-    <meta charset="UTF-8" />
-    <title>Inicio de Sesión</title>
+    <title>Iniciar Sesión</title>
 </head>
 <body>
-    <h2>Login</h2>
+    <h1>Iniciar Sesión</h1>
 
     <?php if (!empty($error)): ?>
         <p style="color:red;"><?php echo htmlspecialchars($error); ?></p>
     <?php endif; ?>
 
     <form method="POST" action="">
-        <input type="email" name="email" placeholder="Correo electrónico" required><br><br>
-        <input type="password" name="contraseña" placeholder="Contraseña" required><br><br>
-        <input type="submit" value="Iniciar Sesión">
+        <input type="email" name="email" placeholder="Correo electrónico" required><br>
+        <input type="password" name="password" placeholder="Contraseña" required><br>
+        <button type="submit">Entrar</button>
     </form>
+
+    <p><a href="registro.php">¿No tienes cuenta? Regístrate aquí</a></p>
 </body>
 </html>

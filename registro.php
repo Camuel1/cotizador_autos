@@ -20,13 +20,19 @@ try {
 
 // Procesar formulario
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $nombre = $_POST["nombre"] ?? '';
-    $email = $_POST["email"] ?? '';
+    $nombre = trim($_POST["nombre"] ?? '');
+    $email = trim($_POST["email"] ?? '');
     $password = $_POST["password"] ?? '';
 
     // Validación básica
     if (!$nombre || !$email || !$password) {
-        echo "Todos los campos son obligatorios.";
+        echo "<p style='color:red;'>Todos los campos son obligatorios.</p>";
+        exit;
+    }
+
+    // Validar email
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        echo "<p style='color:red;'>Email no válido.</p>";
         exit;
     }
 
@@ -37,9 +43,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt = $pdo->prepare("INSERT INTO usuarios (nombre, email, password) VALUES (?, ?, ?)");
     try {
         $stmt->execute([$nombre, $email, $hash]);
-        echo "Usuario registrado con éxito.";
+        echo "<p style='color:green;'>Usuario registrado con éxito.</p>";
     } catch (PDOException $e) {
-        echo "Error al registrar: " . $e->getMessage();
+        // Detectar si email ya existe
+        if ($e->getCode() == 23000) {
+            echo "<p style='color:red;'>El correo ya está registrado.</p>";
+        } else {
+            echo "<p style='color:red;'>Error al registrar: " . $e->getMessage() . "</p>";
+        }
     }
 }
 ?>

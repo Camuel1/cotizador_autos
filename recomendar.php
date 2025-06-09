@@ -91,7 +91,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         while ($auto = $result->fetch_assoc()) {
             echo "<p><strong>" . htmlspecialchars($auto['marca']) . " " . htmlspecialchars($auto['modelo']) . "</strong><br>";
             echo "Precio: $" . number_format($auto['precio'], 0, ',', '.') . "<br>";
-            echo "Caja: " . htmlspecialchars($auto['caja']) . " - Estilo: " . htmlspecialchars($auto['estilo']) . "</p><hr>";
+            echo "Caja: " . htmlspecialchars($auto['caja']) . " - Estilo: " . htmlspecialchars($auto['estilo']) . "</p>";
+
+            // Botón Cotizar con enlace a cotizar.php pasando el id del auto
+            echo '<a href="cotizar.php?id=' . $auto['id'] . '"><button type="button">Cotizar</button></a>';
+
+            echo "<hr>";
         }
     } else {
         echo "<p>No se encontraron autos que coincidan con tus preferencias.</p>";
