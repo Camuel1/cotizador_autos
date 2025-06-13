@@ -11,12 +11,12 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    background: #1A1A1A; /* Fondo oscuro deportivo */
+    background: #1A1A1A;
     overflow-x: hidden;
     position: relative;
 }
 
-/* Fondo con imagen difuminada */
+/* Imagen de fondo difuminada */
 body::before {
     content: "";
     position: fixed;
@@ -30,7 +30,7 @@ body::before {
     z-index: -2;
 }
 
-/* Capa ligeramente oscura encima de la imagen */
+/* Capa oscura encima del fondo */
 body::after {
     content: "";
     position: fixed;
@@ -42,17 +42,18 @@ body::after {
     z-index: -1;
 }
 
+/* Contenedor principal */
 .container {
     position: relative;
     z-index: 10;
-    max-width: 480px;
+    max-width: 500px;
     background-color: rgba(255, 255, 255, 0.05);
-    padding: 40px 50px;
+    padding: 40px 60px;
     border-radius: 15px;
     backdrop-filter: blur(10px);
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.8);
     text-align: center;
-    color: #FFFFFF;
+    color: #fff;
 }
 
 /* Título */
@@ -61,19 +62,37 @@ h1 {
     margin-bottom: 25px;
 }
 
-/* Botones estilo deportivo */
+/* Campos de entrada */
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 8px;
+    border: none;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    font-size: 1rem;
+}
+
+/* Placeholder más claro */
+input::placeholder {
+    color: #ccc;
+}
+
+/* Botón principal */
 button {
     background-color: #D72638;
     border: none;
     color: white;
     padding: 12px 28px;
-    margin: 12px 8px 0 8px;
+    margin-top: 18px;
     border-radius: 8px;
     cursor: pointer;
     font-size: 1rem;
     font-weight: 600;
     transition: background-color 0.3s ease;
-    min-width: 140px;
 }
 
 button:hover {
@@ -89,15 +108,4 @@ p a {
 
 p a:hover {
     text-decoration: underline;
-}
-
-/* Imagen superior con logos (si se usa) */
-.banner-logos {
-    width: 100%;
-    max-width: 480px;
-    margin: 0 auto 30px auto;
-    display: block;
-    object-fit: contain;
-    border-radius: 15px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.6);
 }

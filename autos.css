@@ -1,0 +1,149 @@
+/* Reset básico */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
+    background-color: #111;
+    color: #eee;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 900px;
+    width: 100%;
+    padding: 30px 20px;
+    background-color: rgba(0,0,0,0.75);
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+    margin: 40px 20px;
+    border: 2px solid #cc0000; /* borde rojo fuerte */
+}
+
+h1 {
+    color: #cc0000;
+    text-align: center;
+    margin-bottom: 20px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 0 0 6px #cc0000;
+}
+
+a.back-link {
+    color: #cc0000;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-block;
+    margin-bottom: 20px;
+    transition: color 0.3s ease;
+}
+
+a.back-link:hover {
+    color: #ff1a1a;
+    text-decoration: underline;
+}
+
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 10px;
+    background-color: transparent;
+}
+
+thead tr {
+    background-color: #cc0000;
+    color: #111;
+    text-align: left;
+    border-radius: 10px;
+    box-shadow: 0 3px 8px rgba(204, 0, 0, 0.6);
+}
+
+thead th {
+    padding: 15px 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+tbody tr {
+    background: #222;
+    box-shadow: 0 6px 15px rgba(204, 0, 0, 0.3);
+    border-radius: 10px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+tbody tr:hover {
+    background: #330000;
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(255, 0, 0, 0.6);
+}
+
+tbody td {
+    padding: 12px 10px;
+    color: #ddd;
+}
+
+button {
+    background-color: #cc0000;
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 5px 15px rgba(204, 0, 0, 0.5);
+}
+
+button:hover {
+    background-color: #ff1a1a;
+    box-shadow: 0 8px 20px rgba(255, 26, 26, 0.8);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    thead {
+        display: none;
+    }
+    table, tbody, tr, td {
+        display: block;
+        width: 100%;
+    }
+    tr {
+        margin-bottom: 20px;
+        background-color: #222;
+        border-radius: 10px;
+        padding: 10px;
+        box-shadow: 0 6px 15px rgba(204, 0, 0, 0.3);
+    }
+    td {
+        padding-left: 50%;
+        position: relative;
+        text-align: left;
+        border-bottom: 1px solid #444;
+        color: #ddd;
+    }
+    td:last-child {
+        border-bottom: 0;
+    }
+    td::before {
+        position: absolute;
+        top: 12px;
+        left: 15px;
+        width: 45%;
+        white-space: nowrap;
+        font-weight: 700;
+        color: #cc0000;
+        text-transform: uppercase;
+    }
+    td:nth-of-type(1)::before { content: "Marca"; }
+    td:nth-of-type(2)::before { content: "Modelo"; }
+    td:nth-of-type(3)::before { content: "Año"; }
+    td:nth-of-type(4)::before { content: "Precio"; }
+    td:nth-of-type(5)::before { content: "Acción"; }
+}

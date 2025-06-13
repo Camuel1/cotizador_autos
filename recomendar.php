@@ -9,20 +9,17 @@ if (!isset($_SESSION['usuario_id'])) {
 <!DOCTYPE html>
 <html>
 <head>
+<link rel="stylesheet" href="recomendar.css">
     <title>Recomendar Auto</title>
     <script>
-    // Función para formatear con puntos cada 3 dígitos al escribir
     function formatPrice(input) {
-        let value = input.value.replace(/\./g, ''); // quitar puntos
+        let value = input.value.replace(/\./g, '');
         if (!isNaN(value) && value !== '') {
-            // Añadir puntos
             input.value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
         } else {
             input.value = '';
         }
     }
-
-    // Al enviar, limpia el input para que no tenga puntos
     function cleanPrice() {
         let priceInput = document.getElementById('precio_max');
         priceInput.value = priceInput.value.replace(/\./g, '');
@@ -30,6 +27,7 @@ if (!isset($_SESSION['usuario_id'])) {
     </script>
 </head>
 <body>
+<div class="container">
     <p>Bienvenido, <?php echo htmlspecialchars($_SESSION['usuario_nombre']); ?> | <a href="logout.php">Cerrar sesión</a></p>
 
     <h2>Recomendador de Autos</h2>
@@ -51,6 +49,7 @@ if (!isset($_SESSION['usuario_id'])) {
         <input type="text" id="precio_max" name="precio_max" onkeyup="formatPrice(this)" placeholder="10.000.000"><br><br>
 
         <input type="submit" value="Ver Recomendaciones">
+         <button type="button" onclick="window.location='recomendar.php';" style="margin-left: 10px; background-color: #555; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer;">Limpiar filtros</button> 
     </form>
 
 <?php
@@ -61,22 +60,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $caja = $_POST["caja"];
     $precio_max = trim($_POST["precio_max"]);
 
-    // Limpiar puntos si es que llegan (por si JS no funcionó)
     $precio_max = str_replace('.', '', $precio_max);
 
-    // Validar que si se ingresó precio, sea numérico
     if ($precio_max !== '' && !is_numeric($precio_max)) {
-        echo "<p>Precio inválido.</p>";
+        echo "<p style='color: #ff6600;'>Precio inválido.</p>";
         exit();
     }
 
     if ($precio_max === '') {
-        // Si no hay precio máximo, no se filtra por precio
         $sql = "SELECT * FROM autos WHERE estilo = ? AND caja = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("ss", $estilo, $caja);
     } else {
-        // Si hay precio máximo, filtrar por él
         $sql = "SELECT * FROM autos WHERE estilo = ? AND caja = ? AND precio <= ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("ssd", $estilo, $caja, $precio_max);
@@ -89,14 +84,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if ($result->num_rows > 0) {
         while ($auto = $result->fetch_assoc()) {
-            echo "<p><strong>" . htmlspecialchars($auto['marca']) . " " . htmlspecialchars($auto['modelo']) . "</strong><br>";
-            echo "Precio: $" . number_format($auto['precio'], 0, ',', '.') . "<br>";
-            echo "Caja: " . htmlspecialchars($auto['caja']) . " - Estilo: " . htmlspecialchars($auto['estilo']) . "</p>";
-
-            // Botón Cotizar con enlace a cotizar.php pasando el id del auto
-            echo '<a href="cotizar.php?id=' . $auto['id'] . '"><button type="button">Cotizar</button></a>';
-
-            echo "<hr>";
+            echo "<div class='auto-item'>";
+            echo "<h4>" . htmlspecialchars($auto['marca']) . " " . htmlspecialchars($auto['modelo']) . "</h4>";
+            echo "<p><strong>Precio:</strong> $" . number_format($auto['precio'], 0, ',', '.') . "</p>";
+            echo "<p><strong>Caja:</strong> " . htmlspecialchars($auto['caja']) . " | <strong>Estilo:</strong> " . htmlspecialchars($auto['estilo']) . "</p>";
+            echo '<a href="cotizar.php?id=' . $auto['id'] . '" class="btn-cotizar">Cotizar</a>';
+            echo "</div><hr>";
+            
         }
     } else {
         echo "<p>No se encontraron autos que coincidan con tus preferencias.</p>";
@@ -106,5 +100,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $conn->close();
 }
 ?>
+</div>
 </body>
 </html>
