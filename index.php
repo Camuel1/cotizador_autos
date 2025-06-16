@@ -12,7 +12,8 @@ session_start();
     <div class="container">
 
         <!-- Imagen banner con logos de las marcas -->
-        <img src="img/logos/marcas_unidas.png" alt="Logos de Marcas" class="banner-logos">
+        <img src="/img/logos/marcas_unidas.png" alt="Logos de Marcas" class="banner-logos">
+
 
         <h1>Bienvenido al Cotizador de Autos</h1>
 

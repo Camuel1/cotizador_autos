@@ -1,4 +1,8 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 session_start();
 if (!isset($_SESSION['usuario_id'])) {
     header("Location: login.php");
@@ -31,6 +35,7 @@ try {
     }
 
     $auto = $result->fetch_assoc();
+
     $cuotas = 0;
     $medio_pago = "";
     $pie_pago = 0;
@@ -47,6 +52,7 @@ try {
         if (!in_array($medio_pago, $medios_validos)) throw new Exception("Medio de pago inválido.");
 
         if ($pie_pago < 0) throw new Exception("El monto del anticipo no puede ser negativo.");
+        if ($pie_pago > $auto['precio']) throw new Exception("El monto del anticipo no puede ser mayor al precio del auto.");
 
         $precio_base = $auto['precio'];
         $tasas = [
@@ -102,3 +108,62 @@ try {
     $error = $e->getMessage();
 }
 ?>
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Cotizar Auto</title>
+    <link rel="stylesheet" href="cotizar.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+    <h1>Cotizar: <?php echo htmlspecialchars($auto['marca'] . ' ' . $auto['modelo']); ?></h1>
+    <p>Precio base: $<?php echo number_format($auto['precio'], 0, ',', '.'); ?></p>
+
+    <?php if (!empty($error)): ?>
+        <p style="color: red;"><?php echo htmlspecialchars($error); ?></p>
+    <?php endif; ?>
+
+    <form method="POST" class="cotizar-form">
+        <label for="medio_pago">Medio de pago:</label>
+        <select name="medio_pago" id="medio_pago" required>
+            <option value="">Seleccione una opción</option>
+            <option value="compra_inteligente" <?php if ($medio_pago === 'compra_inteligente') echo 'selected'; ?>>Compra Inteligente</option>
+            <option value="credito_banco" <?php if ($medio_pago === 'credito_banco') echo 'selected'; ?>>Crédito Bancario</option>
+            <option value="efectivo" <?php if ($medio_pago === 'efectivo') echo 'selected'; ?>>Efectivo</option>
+        </select>
+
+        <label for="cuotas">Número de cuotas:</label>
+        <select name="cuotas" id="cuotas" required>
+            <option value="">Seleccione cuotas</option>
+            <option value="12" <?php if ($cuotas == 12) echo 'selected'; ?>>12</option>
+            <option value="24" <?php if ($cuotas == 24) echo 'selected'; ?>>24</option>
+            <option value="36" <?php if ($cuotas == 36) echo 'selected'; ?>>36</option>
+            <option value="48" <?php if ($cuotas == 48) echo 'selected'; ?>>48</option>
+        </select>
+
+        <label for="pie_pago">Monto del pie (anticipo):</label>
+        <input type="number" name="pie_pago" id="pie_pago" placeholder="Ej: 1000000" min="0" step="50000" value="<?php echo htmlspecialchars($pie_pago); ?>">
+
+        <input type="submit" value="Generar Cotización PDF">
+    </form>
+
+    <p><a href="recomendar.php">Volver a recomendaciones</a></p>
+    <p><a href="logout.php">Cerrar sesión</a></p>
+</div>
+
+<script>
+document.querySelector('.cotizar-form').addEventListener('submit', function(e) {
+    const piePago = parseFloat(document.getElementById('pie_pago').value);
+    const precioAuto = <?php echo json_encode($auto['precio']); ?>;
+
+    if (piePago > precioAuto) {
+        e.preventDefault();
+        alert('El monto del anticipo no puede ser mayor al precio del auto.');
+    }
+});
+</script>
+</body>
+</html>
