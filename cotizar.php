@@ -48,17 +48,24 @@ try {
         $cuotas_validas = [12, 24, 36, 48];
         if (!in_array($cuotas, $cuotas_validas)) throw new Exception("Número de cuotas inválido.");
 
-        $medios_validos = ['compra_inteligente', 'credito_banco', 'efectivo'];
+        $medios_validos = ['compra_inteligente', 'credito_banco'];
         if (!in_array($medio_pago, $medios_validos)) throw new Exception("Medio de pago inválido.");
 
-        if ($pie_pago < 0) throw new Exception("El monto del anticipo no puede ser negativo.");
-        if ($pie_pago > $auto['precio']) throw new Exception("El monto del anticipo no puede ser mayor al precio del auto.");
+        $pie_minimo = 5000000;
+
+        if ($pie_pago < $pie_minimo) {
+            throw new Exception("El monto del anticipo debe ser al menos $" . number_format($pie_minimo, 0, ',', '.'));
+        }
+
+        if ($pie_pago > $auto['precio']) {
+            throw new Exception("El monto del anticipo no puede ser mayor al precio del auto.");
+        }
 
         $precio_base = $auto['precio'];
         $tasas = [
             'compra_inteligente' => [12 => 0.07, 24 => 0.09, 36 => 0.11, 48 => 0.13],
             'credito_banco' => [12 => 0.11, 24 => 0.13, 36 => 0.15, 48 => 0.17],
-            'efectivo' => [12 => 0.00, 24 => 0.00, 36 => 0.00, 48 => 0.00]
+            
         ];
 
         $interes = $tasas[$medio_pago][$cuotas] ?? 0;
@@ -132,7 +139,7 @@ try {
             <option value="">Seleccione una opción</option>
             <option value="compra_inteligente" <?php if ($medio_pago === 'compra_inteligente') echo 'selected'; ?>>Compra Inteligente</option>
             <option value="credito_banco" <?php if ($medio_pago === 'credito_banco') echo 'selected'; ?>>Crédito Bancario</option>
-            <option value="efectivo" <?php if ($medio_pago === 'efectivo') echo 'selected'; ?>>Efectivo</option>
+            
         </select>
 
         <label for="cuotas">Número de cuotas:</label>
@@ -158,10 +165,18 @@ try {
 document.querySelector('.cotizar-form').addEventListener('submit', function(e) {
     const piePago = parseFloat(document.getElementById('pie_pago').value);
     const precioAuto = <?php echo json_encode($auto['precio']); ?>;
+    const pieMinimo = 5000000;
+
+    if (piePago < pieMinimo) {
+        e.preventDefault();
+        alert('El monto del anticipo debe ser al menos $' + pieMinimo.toLocaleString());
+        return;
+    }
 
     if (piePago > precioAuto) {
         e.preventDefault();
         alert('El monto del anticipo no puede ser mayor al precio del auto.');
+        return;
     }
 });
 </script>
